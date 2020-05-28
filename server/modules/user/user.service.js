@@ -1,8 +1,11 @@
 const User = require('../../models/user');
 const jwt = require('jsonwebtoken');
+const generator = require("generate-password");
+const nodemailer = require("nodemailer");
 const bcrypt = require('bcryptjs');
 
 exports.register = async (data) => {
+    console.log(data);
     const {userName, email, password} = data;
     var salt = bcrypt.genSaltSync(10);
     var passwordHash = bcrypt.hashSync(password, salt);
@@ -38,6 +41,49 @@ exports.login =async(data)=>{
     user.save();
     return user;
 }
+/**
+ * Quên mật khẩu tài khoản người dùng
+ * @email: email người dùng
+ */
+exports.forgetPassword = async (email) => {
+    var user = await User.findOne({ email });
+    if(user === null){
+        return false;
+    } else {
+        var newPassword = await generator.generate({ length: 6, numbers: true });
+        var salt = bcrypt.genSaltSync(10);
+        var passwordHash = bcrypt.hashSync(newPassword, salt);
+        user.tokens = [];
+        user.password=passwordHash;
+        user.save();
+
+        var transporter = await nodemailer.createTransport({
+            service: 'Gmail',
+            auth: { user: 'appchat8888@gmail.com', pass: 'appchat@123' }
+        });
+        var mainOptions = {
+            from: 'appchat8888@gmail.com',
+            to: email,
+            subject: 'APPCHAT : Thay đổi mật khẩu - Change password',
+            html: `
+            <div style="
+                background-color:azure;
+                padding: 100px;
+                text-align: center;
+            ">
+                <h3>
+                    Bạn đã yêu cầu lấy lại mật khẩu
+                </h3>
+                <p>Mật khẩu mới là: <b style="color: red">${newPassword}</b></p>
+            </div>
+            `
+        }
+        await transporter.sendMail(mainOptions);
+        return true;
+    }
+}
+
+
 
 exports.logout = async(data) =>{
     const {id, tokens} = data;
@@ -101,15 +147,7 @@ exports.getFriend = async(id) =>{
     return data;
 }
 
-/**
- * Thêm bạn bè
- */
-exports.addFriend = async(data) =>{
-    let user = await User.findById(data.id);
-    user.friends.push(data.idFriend);
-    user.save();
-    return user;
-}
+
 
 /**
  * Huỷ kết bạn
@@ -120,4 +158,17 @@ exports.deleteFriend =async (id, data) =>{
     user.save();
     return user;
 }
+
+// TODO: làm lại bằng socket(realtime)
+/**
+ * Thêm bạn bè
+ */
+// exports.addFriend = async(data) =>{
+//     let user = await User.findById(data.id);
+//     user.friends.push(data.idFriend);
+//     user.friendRequests.pull(data.idFriend);
+//     user.save();
+//     return user;
+// }
+
 

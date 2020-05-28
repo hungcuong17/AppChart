@@ -25,6 +25,19 @@ exports.login = async (req, res) => {
     }
 }
 
+exports.forgetPassword = async (req, res) => {
+    try {
+        let data = await UserService.forgetPassword(req.body.email);
+        if(data ===false){
+            res.status(400).json({success: false, messages: ['invali_emai_or_password'], content: {inputData: req.body}});
+        } else{
+            res.status(200).json({success: true, messages: ['forget_password_success'], content: data});
+        }
+    } catch (error) {
+        res.status(400).json({success: false, messages: ['forget_password_faile'], content: {error: error}});
+    }
+}
+
 exports.logout = async (req, res) => {
     try {
         let data = await UserService.logout(req.body);
@@ -33,8 +46,6 @@ exports.logout = async (req, res) => {
         res.status(400).json({success: false, messages: ['logout_faile'], content: {error: error}});
     }
 }
-
-
 
 exports.editPassWord = async (req, res) => {
     try {
@@ -89,17 +100,6 @@ exports.getFriend =  async (req, res) =>{
 }
 
 /**
- * Thêm mới bạn bè
- */
-exports.addFriend =  async (req, res) =>{
-    try {
-        let data = await UserService.addFriend(req.body);
-        res.status(200).json({success: true, messages: ['add_friend_success'], content: data});
-    } catch (error) {
-        res.status(400).json({success: false, messages: ['add_friend_faile'], content: {error: error}});
-    }
-}
-/**
  * Huỷ kết bạn
  */
 exports.deleteFriend =  async (req, res) =>{
@@ -110,3 +110,16 @@ exports.deleteFriend =  async (req, res) =>{
         res.status(400).json({success: false, messages: ['delete_friend_faile'], content: {error: error}});
     }
 }
+
+// TODO: làm lại bằng socket(realtime)
+/**
+ * Thêm mới bạn bè
+ */
+// exports.addFriend =  async (req, res) =>{
+//     try {
+//         let data = await UserService.addFriend(req.body);
+//         res.status(200).json({success: true, messages: ['add_friend_success'], content: data});
+//     } catch (error) {
+//         res.status(400).json({success: false, messages: ['add_friend_faile'], content: {error: error}});
+//     }
+// }

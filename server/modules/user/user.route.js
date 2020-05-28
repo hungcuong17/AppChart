@@ -10,6 +10,9 @@ router.post('/register', UserController.register);
 // API Đăng nhập (data truyền vào email, password);
 router.post('/login', UserController.login);
 
+// API Đăng nhập (data truyền vào email);
+router.post('/forgetpassword', UserController.forgetPassword);
+
 // API đăng xuất(dat truyền vào: id là id tài khoản muốn đăng xuất, tokens là token người dùng lưu trong localStorage)
 router.post('/logout', UserController.logout);
 
@@ -25,12 +28,12 @@ router.get('/:name', UserController.getUser);
 // Lấy danh sách bạn bè (id là id người dùng muốn lấy dánh sách bạn bè)
 router.get('/friend/:id', UserController.getFriend);
 
-// Thêm bạn bè (data truyền vào : id và idFriend )
-router.post('/friend', UserController.addFriend);
-
 // Xoá bạn bè(huỷ kết bạn id là id của người dùng muốn huỷ kết bạn, data truyền vào: idFriend là id người bạn muốn huỷ kết bạn)
 router.delete('/friend/:id', UserController.deleteFriend);
 
+// TODO: làm lại bằng socket(realtime)
+// Thêm bạn bè (data truyền vào : id và idFriend )
+// router.post('/friend', UserController.addFriend);
 
 
 

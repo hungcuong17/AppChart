@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const UserSchema = new Schema({
     avatar: {
         type: String,
-        default:'/upload/avatars/user.png'
+        default: '/upload/avatars/user.png'
     },
     userName: {
         type: String,
@@ -24,15 +24,24 @@ const UserSchema = new Schema({
     tokens: [{
         type: String,
     }],
-    statusLogin:{
+    statusLogin: {
         type: String,
-        enum:['on','off'],
-        default:"off"
+        enum: ['on', 'off'],
+        default: "off"
     },
-    friends :[{
+    friends: [{ // danh sách bạn bè
         type: Schema.Types.ObjectId,
         replies: this
     }],
+    friendRequests: [{ // danh sách người dùng mà user đã nhận được lời mời kết bạn từ họ
+        type: Schema.Types.ObjectId,
+        replies: this
+    }],
+    friendResponses: [{ // danh sách người dùng mà user đã gửi lời mời kết bạn đến họ
+        type: Schema.Types.ObjectId,
+        replies: this
+    }]
+
 }, {
     timestamps: true
 });
