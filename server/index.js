@@ -5,7 +5,7 @@ const socketio = require('socket.io');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const User = require('./models/user');
-const Chat = require('./models/chat');
+const Chat = require('./models/chat'); 
 
 require('dotenv').config()
 // APP
