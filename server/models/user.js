@@ -37,8 +37,15 @@ const UserSchema = new Schema({
         replies: this
     }],
     friendRequests: [{ // danh sách người dùng mà user đã nhận được lời mời kết bạn từ họ
-        type: Schema.Types.ObjectId,
-        replies: this
+        userId: {
+            type: Schema.Types.ObjectId,
+            replies: this
+        },
+        status: {
+            type: String,
+            default: 'new',
+            enum: ['new', 'old']
+        }
     }],
     friendResponses: [{ // danh sách người dùng mà user đã gửi lời mời kết bạn đến họ
         type: Schema.Types.ObjectId,

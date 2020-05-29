@@ -132,17 +132,30 @@ exports.getUser = async(userName)=>{
 /**
  * Lấy danh sách bạn bè
  */
-exports.getFriend = async(id) =>{
-    let user = await User.findOne({
-        _id: id
-    }, {friends: 1});
-    
-    let data = user.friends;
-    if(data.length !==0){
-        for(let n in data){
-            console.log(data[n]);
-            data[n] = await User.findOne({_id:data[n]}, {_id: 1, avater: 1, userName: 1, email: 1, statusLogin: 1})
-        }  
+exports.getFriend = async(id, status) =>{
+    let user = await User.findOne({_id: id}, {friends: 1, friendRequests: 1, friendResponses: 1});
+    let data=[];
+    if(status === "friend"){
+        data = user.friends;
+        if(data.length !==0){
+            for(let n in data){
+                data[n] = await User.findOne({_id:data[n]}, {_id: 1, avater: 1, userName: 1, email: 1, statusLogin: 1, timeLogout: 1})
+            }  
+        }
+    } else if(status==='request'){
+        data = user.friendRequests;
+        if(data.length !==0){
+            for(let n in data){
+                data[n] = await User.findOne({_id: data[n].userId}, {_id: 1, avater: 1, userName: 1, email: 1, statusLogin: 1, timeLogout: 1})
+            }
+        }
+    } else if(status==='response'){
+        data = user.friendResponses;
+        if(data.length !==0){
+            for(let n in data){
+                data[n] = await User.findOne({_id:data[n]}, {_id: 1, avater: 1, userName: 1, email: 1, statusLogin: 1, timeLogout: 1})
+            }  
+        }
     }
     return data;
 }

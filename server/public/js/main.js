@@ -35,3 +35,6 @@ function myFunction2() {
 socket.on('output_create_message', data=>{
     console.log("______",data);
 });
+socket.on('get_user_online', data=>{
+    console.log(data);
+})

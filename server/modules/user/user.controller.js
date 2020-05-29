@@ -92,7 +92,7 @@ exports.getUser = async (req, res) => {
  */
 exports.getFriend =  async (req, res) =>{
     try {
-        let data = await UserService.getFriend(req.params.id);
+        let data = await UserService.getFriend(req.params.id, req.params.status);
         res.status(200).json({success: true, messages: ['get_friend_success'], content: data});
     } catch (error) {
         res.status(400).json({success: false, messages: ['get_friend_faile'], content: {error: error}});
