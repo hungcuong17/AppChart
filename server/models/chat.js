@@ -8,15 +8,29 @@ const ChatSchema = new Schema({
         ref: User,
         require: true,
     },
-    per: {
+    person2: {
         type: Schema.Types.ObjectId,
         ref: User,
         require: true,
 
     },
+    name: {
+        type: String,
+    },
+    status: {
+        type: String,
+        enum:['new', 'old'] // new là chat có tin mới chưa đọc, old đã đọc tất cả các tin
+    },
+    type: {
+        type: String,
+        default: 0,
+        enum: ['0', '1'] // 0 là chat 2 người, 1 là chat nhóm
+    },
     messages: [{
-        senderId:{
-            
+        senderId: {
+            type: Schema.Types.ObjectId,
+            ref: User,
+            require: true,
         },
         content: {
             type: String
@@ -25,7 +39,7 @@ const ChatSchema = new Schema({
             type: String,
             enum: ['text', 'image', 'video', 'call_video', 'call'],
         },
-        time: {
+        timeSend: {
             type: Date
         }
     }]

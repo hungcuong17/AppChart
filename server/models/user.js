@@ -29,6 +29,9 @@ const UserSchema = new Schema({
         enum: ['on', 'off'],
         default: "off"
     },
+    timeLogout: {
+        type: Date,
+    },
     friends: [{ // danh sách bạn bè
         type: Schema.Types.ObjectId,
         replies: this

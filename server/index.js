@@ -15,6 +15,7 @@ const io = socketio(server);
 
 // import router
 const userRoute = require('./modules/user/user.route');
+const chatRoute = require('./modules/chat/chat.route');
 
 // set static foder
 app.use(express.static(path.join(__dirname, 'public')));
@@ -40,46 +41,65 @@ const connect = mongoose.connect(
     .then(() => console.log("MongoDB successfully connected"))
     .catch(err => console.log(err));
 
-
+var userOnline =[]; // dánh sách người online
 io.on('connection', (socket) => {
 
-    // Thay đổi statusLogin người dùn khi đăng nhập thành công và lấy lại danh sách bạn bàn
+    // Thay đổi statusLogin người dùng khi đăng nhập thành công và gửi danh sách
+    // người dùng đang online cho tất cả mọi người
+    // 
     socket.on('online', async (id) => {
-        await User.findOneAndUpdate({_id: id}, {$set: {statusLogin: "on"}})
+        console.log(id);
+        await User.findOneAndUpdate({_id: id}, {$set: {statusLogin: "on"}});
+        let chats = await Chat.find({$or: [{person1: id}, {person2: id}]},{ _id: 1});
+        chats = chats.map(x=>x._id);
+        chats.forEach(x=>{
+            socket.join(x);
+        })
+        console.log(socket.adapter.rooms);
+        userOnline.push(id);
+        io.sockets.emit('get_user_online', userOnline);
+        
     });
 
-    // Thay đổi statusLogin người dùng khi thoắt ứng dụng và lấy lại danh sách bạn bè
+    // Thay đổi statusLogin người dùng khi thoắt ứng dụng và gửi danh sách 
+    // người dùng đang online cho tất cả mọi người
     socket.on('offline', async (id) => {
-        await User.findOneAndUpdate({_id: id}, {$set: {statusLogin: "off"}})
+        await User.findOneAndUpdate({_id: id}, {$set: {statusLogin: "off", timeLogout: Date.now()}});
+        userOnline.pull(id);
+        socket.broadcast.emit('get_user_online', userOnline);
     });
 
-    // data truyền vào: senderId và receiverId là _id của người gửi và người nhân
-    socket.on('joinChat', async (data)=>{
-        let chatInfo = await Chat.findOne({senderId: data.senderId, receiverId: data.receiverId})
-        if(chatInfo === null){
-            await Chat.create({senderId: data.senderId, receiverId: data.receiverId, messages: []})
-        }
-    })
+    // bắt sự kiện click vào cuộc hội thoại(cuộc chat)
+    // data truyền vào: senderId và receiverId là _id của người gửi và người nhận
+    // socket.on('joinChat', async (data)=>{
+    //     let chatInfo = await Chat.findOne({senderId: data.senderId, receiverId: data.receiverId})
+    //     if(chatInfo === null){
+    //         await Chat.create({senderId: data.senderId, receiverId: data.receiverId, messages: []})
+    //     }
+    // })
 
-    // data tryền vào: senderId, receiverId:
+    // Tạo mới tin nhắn
+    // data tryền vào: senderId là id người gửi, chatID là id phòng chat, content, type
     socket.on('input_create_message', async (data) => {
         try {
-            let chatInfo = await Chat.findOne({senderId: data.senderId,receiverId: data.receiverId});
-            let chatInfo2 = await Chat.findOne({senderId: data.receiverId,receiverId: data.senderId})
-            let message = {content: data.content, type: data.type, time: data.time};
-            chatInfo.messages.push(message);
-            chatInfo2.messages.push(message);
-            chatInfo.save();
-            chatInfo2.save();
-
-            let newChat = {messages: [message] }
-            let res = {success: true, messages: ['create_message_success'], content: newChat}
-            io.sockets.emit('output_create_message', res)
+            let chat = await Chat.findById(data.chatID);
+            let message = {senderId: data.senderId, content: data.content, type: data.type, timeSend: Date.now()};
+            chat.messages.push(message);
+            chat.status ='new',
+            chat.save();
+            let res = {success: true, messages: ['create_message_success'], content: chat};
+            io.to(data.chatID).emit('output_create_message', res);
         } catch (error) {
             let res = {success: false, messages: ['create_message_faile'], content: {error: error}}
-            io.sockets.emit('output_create_message', res)
+            sockets.emit('output_create_message', res)
         }
     })
+
+    // Gửi yêu cầu kết bạn
+
+
+
+
     socket.on('disconnect', () => {
         console.log('User had left');
     })
@@ -87,6 +107,8 @@ io.on('connection', (socket) => {
 
 // render api 
 app.use('/api/user', userRoute);
+app.use('/api/chats', chatRoute);
+
 
 // Start server
 const port = process.env.PORT || 5000;

@@ -1,40 +1,33 @@
 const socket = io();
 
 
-//socket.emit('online','5ec77e114f7baf321c091322');
+// socket.emit('online','5ece9b3ac79668226c3dd2b9');
 
 // socket.emit('offline','5ec77e114f7baf321c091322');
 function myFunctionJoinChat() {
-    var data ={
-        senderId: "5ec77e114f7baf321c091322",
-        receiverId: "5ec77f5b3ab6861a985fb5be",
-    }
-    socket.emit('joinChat', data)
+    socket.emit('online','5ece9b3ac79668226c3dd2b9');
 }
+
+function myFunctionJoinChat2() {
+    socket.emit('online','5ece9b6a1560e01ae49281b7');
+}
+
 function myFunction() {
     var data = {
-        senderId: "5ec77e114f7baf321c091322",
-        receiverId: "5ec77f5b3ab6861a985fb5be",
+        senderId: "5ece9b3ac79668226c3dd2b9",
+        chatID: "5ecea4836743cd2538c53807",
         content: 'Hello World',
-        time: '2020-05-27',
         type: 'text'
     }
     socket.emit('input_create_message', data)
 }
-function myFunctionJoinChat2() {
-    var data ={
-        senderId: "5ec77f5b3ab6861a985fb5be",
-        receiverId: "5ec77e114f7baf321c091322",
-    }
-    socket.emit('joinChat', data)
-}
+
 
 function myFunction2() {
     var data = {
-        senderId: "5ec77f5b3ab6861a985fb5be",
-        receiverId: "5ec77e114f7baf321c091322",
-        content: 'Hello World',
-        time: '2020-05-27',
+        senderId: "5ece9b6a1560e01ae49281b7",
+        chatID: "5ecea4836743cd2538c53807",
+        content: 'Hello World1',
         type: 'text'
     }
     socket.emit('input_create_message', data)
